@@ -7,6 +7,7 @@ import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
 import AccountPage from './components/auth/AccountPage';
 import '../ecoflights/App.css';
+import { supabase } from './components/auth/supabaseClient';
 
 export type View = 'home' | 'login' | 'signup' | 'account';
 
@@ -25,10 +26,22 @@ function App() {
     navigate('home');
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserName('');
-    navigate('home');
+  const handleLogout = async () => {
+    try {
+      // Tell Supabase to log the user out
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      // Keep all of your team's original logic
+      setIsLoggedIn(false);
+      setUserName('');
+      navigate('home');
+
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      }
+    }
   };
   
   const handleAccountClick = () => {
