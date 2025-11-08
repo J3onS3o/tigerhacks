@@ -39,7 +39,7 @@ class SolanaNFTMinter:
         self, 
         user_wallet: str,
         milestone: int,
-        C02e: int
+        CO2e: int
     ) -> dict:
         """
         Mint NFT on Solana using Metaplex
@@ -50,10 +50,10 @@ class SolanaNFTMinter:
         metadata = {
             "name": f"SAF Miles - {milestone} Mile Club",
             "symbol": "SAFM",
-            "description": f"This NFT certifies that the holder has reduced {C02e} kg. Redeemable by airlines for tax credits.",
+            "description": f"This NFT certifies that the holder has reduced {CO2e} kg. Redeemable by airlines for tax credits.",
             "attributes": [
                 {"trait_type": "Milestone", "value": str(milestone)},
-                {"trait_type": "Total C02e Reduced", "value": str(C02e)},
+                {"trait_type": "Total CO2e Reduced", "value": str(CO2e)},
                 {"trait_type": "User Address", "value": user_wallet},
                 {"trait_type": "Redeemable", "value": "Yes"}
             ]
@@ -166,7 +166,7 @@ async def log_flight(flight: Flight):
     # Initialize user if new
     if flight.user_wallet not in user_database:
         user_database[flight.user_wallet] = {
-            "C02e": 0,
+            "CO2e": 0,
             "flights": [],
             "claimed_milestones": [],
             "nfts": []
@@ -174,7 +174,7 @@ async def log_flight(flight: Flight):
     
     # Add miles
     user = user_database[flight.user_wallet]
-    user["C02e"] += flight.miles
+    user["CO2e"] += flight.miles
     user["flights"].append({
         "airline": flight.airline,
         "route": flight.route,
@@ -186,12 +186,12 @@ async def log_flight(flight: Flight):
     new_nfts = []
     
     for milestone in milestones:
-        if user["C02e"] >= milestone and milestone not in user["claimed_milestones"]:
+        if user["CO2e"] >= milestone and milestone not in user["claimed_milestones"]:
             # Mint NFT on Solana
             nft = await nft_minter.mint_nft_metaplex(
                 flight.user_wallet,
                 milestone,
-                user["C02e"]
+                user["CO2e"]
             )
             
             user["claimed_milestones"].append(milestone)
@@ -202,9 +202,9 @@ async def log_flight(flight: Flight):
     return {
         "message": "Flight logged successfully",
         "miles_added": flight.miles,
-        "C02e": user["C02e"],
+        "CO2e": user["CO2e"],
         "new_nfts": new_nfts,
-        "next_milestone": next((m for m in milestones if m > user["C02e"]), None)
+        "next_milestone": next((m for m in milestones if m > user["CO2e"]), None)
     }
 
 @app.get("/api/user/{wallet}")

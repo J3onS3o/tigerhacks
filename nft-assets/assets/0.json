@@ -1,0 +1,9 @@
+{
+  "name": "CO2e Reduced - 150kg Reduced Club",
+  "symbol": "SAFM",
+  "description": "This NFT certifies that the holder has reduced their carbon foot print by 150kg CO2e",
+  "image": "0.png",
+  "attributes": [
+    {"trait_type": "Milestone", "value": "100"}
+  ]
+}
