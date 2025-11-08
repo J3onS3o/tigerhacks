@@ -1,3 +1,4 @@
+import { supabase } from './supabaseClient' 
 import React, { useState } from 'react';
 import type { View } from '../../App';
 import { LeafIcon } from '../icons/Icons';
@@ -12,11 +13,33 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate, onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login by extracting a name from the email
-    const name = email.split('@')[0];
-    onLogin(name);
+    setLoading(true);
+
+    try {
+      // Use Supabase to sign in with email and password
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) throw error; // If Supabase sends an error, show it
+
+      // Login was successful!
+      // Now, we'll call the onLogin prop, just like their old code did.
+      const name = email.split('@')[0];
+      onLogin(name);
+
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      }
+    } finally {
+      setLoading(false); // Make sure to stop loading
+    }
   };
 
   return (
