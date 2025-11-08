@@ -1,0 +1,149 @@
+.card {
+  background-color: var(--color-surface);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transition: transform 300ms ease-in-out, box-shadow 300ms ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-xl);
+}
+
+.content {
+  padding: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.airline {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.flightNumber {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--color-text-primary);
+}
+
+.priceContainer {
+  text-align: right;
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.priceLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.route {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.airport {
+  text-align: center;
+}
+
+.arrivalAirport {
+  text-align: center;
+}
+
+.time {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.airportCode {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.routeLine {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d1d5db; /* slate-300 */
+}
+
+.dashedLine {
+  width: 100%;
+  border-bottom: 2px dashed currentColor;
+  margin: 0 1rem;
+}
+
+.planeIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+  flex-shrink: 0;
+}
+
+.details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  background-color: #f1f5f9; /* slate-100 */
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+.detailIcon {
+  height: 1rem;
+  width: 1rem;
+}
+
+.safDetail {
+  font-weight: 600;
+  color: #15803d; /* green-700 */
+}
+
+.footer {
+  background-color: #f8fafc; /* slate-50 */
+  padding: 1rem;
+}
+
+.bookButton {
+  width: 100%;
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 150ms ease-in-out;
+}
+
+.bookButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.bookButton:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
+}

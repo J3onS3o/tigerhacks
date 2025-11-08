@@ -1,0 +1,19 @@
+.placeholder-page {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-secondary);
+}
+
+.placeholder-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.placeholder-message {
+  font-size: 1rem;
+  max-width: 40ch;
+  margin: 0 auto;
+  line-height: 1.6;
+}
