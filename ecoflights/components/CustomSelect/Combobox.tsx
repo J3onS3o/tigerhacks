@@ -62,7 +62,7 @@ export const ComboboxInput: React.FC<ComboboxInputProps> = ({ children, classNam
 
   return (
     <>
-      <label htmlFor={refForId.current}>Enter Airport name or IATA code:</label>
+      <label htmlFor={refForId.current}>Enter Airport Name or IATA Code:</label>
       <div>
         <input
           {...props}
@@ -93,6 +93,7 @@ export const ComboboxPopOver: React.FC<React.HTMLAttributes<HTMLDivElement>> = (
   );
 };
 
+/*
 export const ComboboxList: React.FC = () => {
   const { listData, searchTerm, setSearchTerm, setSelectedItem } = useComboboxContext();
 
@@ -101,7 +102,7 @@ export const ComboboxList: React.FC = () => {
     const input = searchTerm.toLowerCase().trim();
     return listData.filter(a => a.name.toLowerCase().includes(input) || a.iata.toLowerCase().includes(input));
   }, [listData, searchTerm]);
-
+  const displayList = filtered.slice(0, 10);
   return (
     <ul className="combobox-list">
       {filtered.map(item => (
@@ -118,6 +119,47 @@ export const ComboboxList: React.FC = () => {
       ))}
     </ul>
   );
+};
+*/
+
+export const ComboboxList: React.FC = () => {
+  const { listData, searchTerm, setSearchTerm, setSelectedItem } = useComboboxContext();
+
+  const filtered = React.useMemo(() => {
+    // Check if the search term is empty or just whitespace
+    if (!searchTerm.trim()) {
+        // --- 🌟 Correction: Apply slice immediately when no search term is present 🌟 ---
+        // Return only the first 10 items of the full list
+        return listData.slice(0, 10);
+    }
+    
+    // If a search term exists, apply the filtering logic
+    const input = searchTerm.toLowerCase().trim();
+    return listData.filter(a => a.name.toLowerCase().includes(input) || a.iata.toLowerCase().includes(input));
+  }, [listData, searchTerm]);
+
+  // The displayList slice is no longer needed here since the filtered array is already limited
+  // const displayList = filtered.slice(0, 10); 
+    
+  // If a search term exists, you should still limit the results to 10
+  // to prevent rendering hundreds of items.
+
+  return (
+    <ul className="combobox-list">
+      {filtered.slice(0, 10).map(item => ( // Re-applying slice here to limit search results too
+        <li
+          key={item.iata}
+          onClick={() => {
+            setSearchTerm('');
+            setSelectedItem(item.iata);
+          }}
+          className="combobox-list-item"
+        >
+          {item.name} ({item.iata})
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 export default Combobox;

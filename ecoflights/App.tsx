@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
-import FlightSearch from './components/FlightSearch';
+//import FlightSearch from './components/FlightSearch';//
 import Footer from './components/Footer';
 import AboutEmissions from './components/AboutEmissions';
 import LoginPage from './components/auth/LoginPage';
