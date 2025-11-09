@@ -21,7 +21,6 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn, onAccountClick, onLogoClick
         
         <div className="nav-buttons">
           <button onClick={onAboutClick} className="nav-link-button">
-            <AboutUs className="button-icon" />
             About Us
           </button>
           <button onClick={onAccountClick} className="account-button">
