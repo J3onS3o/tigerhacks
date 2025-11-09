@@ -1,14 +1,35 @@
 import React from 'react';
-import type { Flight } from '../types';
+import type { Flight } from '../frontend/src/types';
 import { PlaneIcon, ClockIcon, CloudIcon } from './icons/Icons';
 import './FlightCard.css';
 
 const FlightCard: React.FC<{ flight: Flight }> = ({ flight }) => {
-  const emissionsStatus = flight.emissions 
-    ? flight.emissions.comparisonPercent < 0
-      ? `${Math.abs(flight.emissions.comparisonPercent)}% lower emissions`
-      : `${flight.emissions.comparisonPercent}% higher emissions`
-    : 'Emissions data not available';
+  // Format emissions data with better context
+  const formatEmissions = (emissions: Flight['emissions']) => {
+    if (!emissions) return { text: 'Emissions data not available', className: '' };
+    
+    const percent = emissions.comparisonPercent;
+    const gramsPerPassenger = emissions.co2Grams;
+    
+    if (percent < -20) {
+      return {
+        text: `Eco-friendly choice! ${Math.abs(percent)}% lower emissions (${(gramsPerPassenger / 1000).toFixed(1)} kg CO₂)`,
+        className: 'eco-friendly'
+      };
+    } else if (percent < 0) {
+      return {
+        text: `${Math.abs(percent)}% lower emissions (${(gramsPerPassenger / 1000).toFixed(1)} kg CO₂)`,
+        className: 'lower-emissions'
+      };
+    } else {
+      return {
+        text: `${percent}% higher emissions (${(gramsPerPassenger / 1000).toFixed(1)} kg CO₂)`,
+        className: 'higher-emissions'
+      };
+    }
+  };
+
+  const emissionsInfo = formatEmissions(flight.emissions);
 
   return (
     <div className="card">
@@ -45,12 +66,10 @@ const FlightCard: React.FC<{ flight: Flight }> = ({ flight }) => {
                 <ClockIcon className="detail-icon"/>
                 <span>{flight.duration}</span>
             </div>
-            {flight.emissions && (
-                <div className={`detail-item emissions-detail ${flight.emissions.comparisonPercent < 0 ? 'lower-emissions' : ''}`}>
-                    <CloudIcon className="detail-icon"/>
-                    <span>{emissionsStatus}</span>
-                </div>
-            )}
+            <div className={`detail-item emissions-detail ${emissionsInfo.className}`}>
+                <CloudIcon className="detail-icon"/>
+                <span>{emissionsInfo.text}</span>
+            </div>
         </div>
       </div>
       <div className="footer">
@@ -58,9 +77,9 @@ const FlightCard: React.FC<{ flight: Flight }> = ({ flight }) => {
             href={flight.bookingLink} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="book-button"
+            className={`book-button ${emissionsInfo.className}`}
           >
-            Book Now
+            {emissionsInfo.className === 'eco-friendly' ? 'Book Eco-Friendly Flight' : 'Book Flight'}
         </a>
       </div>
     </div>

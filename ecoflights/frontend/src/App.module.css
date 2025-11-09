@@ -59,6 +59,55 @@
   padding: 0 1rem;
 }
 
+.tabContent {
+  background-color: var(--color-background);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin: 1.5rem auto;
+  max-width: 1200px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.tabGroup {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  background-color: rgba(229, 231, 235, 0.2);
+  border-radius: 0.5rem;
+  justify-content: center;
+}
+
+.tab {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab:hover {
+  color: var(--color-text-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tab.active {
+  color: #4CAF50;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
 @media (min-width: 768px) {
   .heroContent {
     padding-top: 8rem;
@@ -70,5 +119,12 @@
   }
   .heroSubtitle {
     font-size: 1.25rem; /* 20px */
+  }
+  .tabContent {
+    padding: 2.5rem;
+    margin: 2rem auto;
+  }
+  .tabGroup {
+    gap: 1rem;
   }
 }

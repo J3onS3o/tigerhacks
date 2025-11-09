@@ -7,7 +7,7 @@ import AboutEmissions from './components/AboutEmissions';
 import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
 import AccountPage from './components/auth/AccountPage';
-import '../ecoflights/App.css';
+import './App.css';
 
 export type View = 'home' | 'login' | 'signup' | 'account';
 
