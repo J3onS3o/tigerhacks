@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import flightsRouter from "./routes/flights";
+import impactRoutes from "./routes/impact";
+
 
 dotenv.config();
 

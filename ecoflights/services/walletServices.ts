@@ -1,17 +1,18 @@
 // mock wallet services for gemini API calls
 // src/services/walletService.ts
 
-export interface WalletData {
-  address: string;
-  co2SavedKg: number;
-  percentReduction: number;
+export interface WalletStats {
+  totalCO2Saved: number; // in kg
+  reductionPercent: number;
+  flightsOffset: number;
 }
 
-export async function getWalletData(walletAddress: string): Promise<WalletData> {
-  // TODO: Replace this mock data with real blockchain query
+export async function getWalletStats(): Promise<WalletStats> {
+  // Placeholder – replace with your blockchain API call
   return {
-    address: walletAddress,
-    co2SavedKg: 87.4, // Example token -> CO2 kg conversion
-    percentReduction: 22.5,
+    totalCO2Saved: 154.3,
+    reductionPercent: 22.5,
+    flightsOffset: 3,
   };
 }
+

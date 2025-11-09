@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Flight } from '../types';
 import FlightCard from './FlightCard';
+import EcoWalletTab from './EcoWalletTab';
 import './FlightSearch.css';
 
 interface SerpAPIParams {
@@ -22,7 +23,7 @@ interface SerpAPIParams {
 }
 
 const FlightSearch: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'You Flights' | 'Your Wallet' | 'Your Impact'>('flights');
+  const [activeTab, setActiveTab] = useState<'flights' | 'wallet' | 'impact'>('flights');
   const [tripType, setTripType] = useState<'1' | '2'>('1');
   
   const [from, setFrom] = useState('');
@@ -40,6 +41,9 @@ const FlightSearch: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [impactLoading, setImpactLoading] = useState(false);
+  const [impactMessage, setImpactMessage] = useState<string | null>(null);
+  
   const handleSwapLocations = () => {
     const temp = from;
     setFrom(to);
@@ -154,18 +158,68 @@ const FlightSearch: React.FC = () => {
             ✈️ Flights
           </button>
           <button
-            className={`tab-button ${activeTab === 'hotels' ? 'active' : ''}`}
-            onClick={() => setActiveTab('hotels')}
+            className={`tab-button ${activeTab === 'wallet' ? 'active' : ''}`}
+            onClick={() => setActiveTab('wallet')}
           >
             🪙 Wallet
           </button>
           <button
-            className={`tab-button ${activeTab === 'cars' ? 'active' : ''}`}
-            onClick={() => setActiveTab('cars')}
+            className={`tab-button ${activeTab === 'impact' ? 'active' : ''}`}
+            onClick={async () => {
+              setActiveTab('impact');
+              setImpactLoading(true);
+              setImpactMessage(null);
+
+              try {
+                // Example stats; replace with actual wallet stats
+                const stats = {
+                  totalCO2Saved: 123.4,
+                  reductionPercent: 12.5,
+                  flightsOffset: 3
+                };
+
+                const prompt = `
+                  A user has saved ${stats.totalCO2Saved.toFixed(1)} kg of CO₂e,
+                  a ${stats.reductionPercent.toFixed(1)}% reduction across flights,
+                  roughly equal to ${stats.flightsOffset} flights offset.
+                  Write an encouraging, informative 2-3 sentence summary comparing their impact to everyday examples 
+                  (trees planted, miles driven avoided, etc.) in a friendly tone.
+                `;
+
+                const response = await fetch("/api/gemini", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ prompt })
+                });
+
+                const data = await response.json();
+                setImpactMessage(data.response);
+              } catch (err) {
+                console.error(err);
+                setImpactMessage("Could not load your impact right now.");
+              } finally {
+                setImpactLoading(false);
+              }
+            }}
           >
             🌱 Impact
           </button>
         </div>
+
+        {activeTab === "wallet" && (
+          <EcoWalletTab />
+        )}
+
+        {activeTab === "impact" && (
+          <div className="tab-content">
+            {impactLoading && <p>Loading your impact...</p>}
+            {!impactLoading && impactMessage && (
+              <div className="impact-message">
+                <p>{impactMessage}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {activeTab === 'flights' && (
           <div className="tab-content">
