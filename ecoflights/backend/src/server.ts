@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import flightsRouter from "../routes/flights";
 
 dotenv.config();
 
@@ -31,7 +32,19 @@ app.post("/api/gemini", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
-);
+// Mount flights routes
+app.use('/api/flights', flightsRouter);
+
+const PORT = parseInt(process.env.PORT || '3001', 10);
+// Explicitly bind to localhost instead of 0.0.0.0 for development
+const HOST = process.env.HOST || 'localhost';
+
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+  console.log(`Try accessing via: http://127.0.0.1:${PORT}`);
+  console.log(`Also available on: http://localhost:${PORT}`);
+}).on('error', (err) => {
+  console.error('Failed to start server:', err);
+  console.error('Error details:', err.message);
+  process.exit(1);
+});

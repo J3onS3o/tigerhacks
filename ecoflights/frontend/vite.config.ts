@@ -8,6 +8,16 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        proxy: {
+          // Proxy API requests to backend during development to avoid CORS and hardcoded host:port
+          '/api': {
+            target: 'http://127.0.0.1:3001',
+            changeOrigin: true,
+            secure: false,
+            rewrite: (path) => path,
+            ws: true
+          }
+        }
       },
       plugins: [react()],
       define: {

@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     // Target environment
-    "target": "es2020",
-    "module": "nodenext",          
+  "target": "es2020",
+  "module": "CommonJS",         
 
     // JSX support for React
     "jsx": "react-jsx",
@@ -15,8 +15,8 @@
     // Module resolution & interop
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
+  "isolatedModules": true,
+  "verbatimModuleSyntax": false,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
 

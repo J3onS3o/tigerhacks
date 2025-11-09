@@ -111,7 +111,7 @@ const FlightSearch: React.FC = () => {
     if (lowEmissionsOnly) params.emissions = '1';
 
     try {
-      const response = await fetch('http://localhost:3001/api/flights/search', {
+      const response = await fetch('/api/flights/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +120,18 @@ const FlightSearch: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch flights');
+        // try to extract error details from response
+        let errBody: any = null;
+        try {
+          errBody = await response.json();
+        } catch {
+          try {
+            errBody = await response.text();
+          } catch {
+            errBody = 'Unknown error';
+          }
+        }
+        throw new Error(typeof errBody === 'string' ? errBody : JSON.stringify(errBody));
       }
 
       const data = await response.json();
