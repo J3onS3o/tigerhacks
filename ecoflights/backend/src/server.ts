@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import flightsRouter from "../routes/flights";
+import flightsRouter from "./routes/flights";
 
 dotenv.config();
 
@@ -13,7 +13,15 @@ app.use(express.json());
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
 app.get("/", (req, res) => {
-  res.send("Backend is running and connected to Gemini!");
+  res.json({
+    status: "Backend is running and connected!",
+    availableEndpoints: {
+      root: "GET /",
+      flightSearch: "POST /api/flights/search",
+      flightTest: "GET /api/flights/test",
+      gemini: "POST /api/gemini"
+    }
+  });
 });
 
 app.post("/api/gemini", async (req, res) => {
@@ -33,7 +41,14 @@ app.post("/api/gemini", async (req, res) => {
 });
 
 // Mount flights routes
+console.log('Mounting flights router at /api/flights');
 app.use('/api/flights', flightsRouter);
+
+// Add simple route logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 // Explicitly bind to localhost instead of 0.0.0.0 for development

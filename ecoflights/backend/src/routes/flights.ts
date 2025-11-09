@@ -3,6 +3,12 @@ import { fetchFlightsFromSerpApi } from '../services/serpApiService';
 
 const router: Router = express.Router();
 
+// Add debug logging middleware for all routes
+router.use((req, res, next) => {
+  console.log(`[Flights Router] ${req.method} ${req.url}`);
+  next();
+});
+
 // Define TypeScript types for the flight search request body
 interface FlightSearchRequest {
   departure_id: string;
@@ -161,7 +167,7 @@ router.get('/test', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     message: 'Flights API is working',
-    hasApiKey: !!process.env.SERPAPI_KEY,
+    hasApiKey: !!process.env.SERPAPI_KEY
   });
 });
 
