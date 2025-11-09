@@ -48,23 +48,31 @@ router.post('/search', async (req: Request<{}, {}, FlightSearchRequest>, res: Re
     const otherFlights = data.other_flights?.length || 0;
     console.log(`Found ${bestFlights} best flights and ${otherFlights} other flights`);
 
-    res.json(data);
+    // Return the normalized response
+    res.json({
+      success: true,
+      ...data, // This spreads best_flights and other_flights arrays
+    });
+
   } catch (error: any) {
     console.error('SerpAPI Error:', error.response?.data || error.message);
 
     if (error.response?.status === 401) {
       return res.status(401).json({
+        success: false,
         error: 'Invalid API key. Please check your SERPAPI_KEY in .env file',
       });
     }
 
     if (error.response?.status === 429) {
       return res.status(429).json({
+        success: false,
         error: 'API rate limit exceeded. Please try again later.',
       });
     }
 
     res.status(500).json({
+      success: false,
       error: 'Failed to fetch flight data',
       details: error.response?.data?.error || error.message,
     });
