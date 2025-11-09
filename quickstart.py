@@ -1,8 +1,3 @@
-"""
-SAF Miles NFT API - Actually mints to Solana Devnet
-"""
-
-import asyncio
 import subprocess
 import json
 from fastapi import FastAPI, HTTPException
@@ -18,7 +13,6 @@ app = FastAPI()
 RPC_URL = "https://api.devnet.solana.com"
 AUTHORITY_KEYPAIR_PATH = "authority-keypair.json" #/Users/kennyhong/.config/solana/id.json
 
-# In-memory database for hackathon with demo data
 user_database = {
     # Demo user 1:
     "47e6dXJGYkLc5MYQ1yZem597PCngRmKfFUVcjgCzA6c3": {
@@ -68,9 +62,9 @@ class SolanaNFTMinter:
         milestone: int,
         total_CO2e: int
     ) -> dict:
-        """
-        Mint NFT on Solana using Metaplex
-        """
+        
+        # Mint NFT on Solana using Metaplex
+        
         print(f"Minting {milestone}kg of CO2e reduction NFT for {user_wallet}...")
         
         # Create metadata
@@ -88,7 +82,7 @@ class SolanaNFTMinter:
         
         # This creates a basic NFT (1 supply token)
         try:
-            # Create a new token mint
+            # Creates a new token mint
             result = subprocess.run(
                 [
                     "spl-token", "create-token",
@@ -149,7 +143,7 @@ class SolanaNFTMinter:
             return self._create_mock_nft(user_wallet, milestone, metadata)
     
     def _create_mock_nft(self, user_wallet: str, milestone: int, metadata: dict) -> dict:
-        """Fallback: Create mock NFT if blockchain minting fails"""
+        # Fallback: Create mock NFT if blockchain minting fails
         mock_mint = f"MOCK{milestone}{user_wallet[:8]}"
         return {
             "nft_mint": mock_mint,
@@ -160,7 +154,7 @@ class SolanaNFTMinter:
             "note": "Mock NFT for demo - would be minted on-chain in production"
         }
 
-# Initialize minter
+# Initialize the minter
 nft_minter = SolanaNFTMinter()
 
 # API Models
@@ -179,7 +173,7 @@ class RedeemRequest(BaseModel):
 # API Endpoints
 @app.post("/api/log-flight")
 async def log_flight(flight: Flight):
-    """Log a flight and check for milestone NFTs"""
+    # Log a flight and check for milestone NFTs
     if not flight.uses_saf:
         return {"message": "Flight does not use SAF", "CO2e_reduced": 0}
     
@@ -208,12 +202,12 @@ async def log_flight(flight: Flight):
     })
     
     # Check for milestone NFTs
-    milestones = [100, 500, 1000]
+    milestones = [100, 500, 1000] #edit/add more for more milestones
     new_nfts = []
     
     for milestone in milestones:
         if user["total_CO2e"] >= milestone and milestone not in user["claimed_milestones"]:
-            # Mint NFT on Solana
+            # Mints NFT on Solana
             nft = await nft_minter.mint_nft_metaplex(
                 flight.user_wallet,
                 milestone,
@@ -235,7 +229,7 @@ async def log_flight(flight: Flight):
 
 @app.get("/api/user/{wallet}")
 async def get_user_stats(wallet: str):
-    """Get user's SAF miles and NFTs"""
+    # Get user's miles and NFTs
     if wallet not in user_database:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -261,8 +255,7 @@ async def redeem_nft(request: RedeemRequest):
     nft["redeemed_by_airline"] = request.airline
     nft["redeemed_date"] = "2025-11-08"
     
-    # In production: burn the NFT on-chain here
-    # subprocess.run(["spl-token", "burn", nft["nft_mint"], "1", ...])
+    # look into burning the nft on the blockchain
     
     return {
         "message": "NFT redeemed successfully",
@@ -273,7 +266,7 @@ async def redeem_nft(request: RedeemRequest):
 
 @app.get("/api/health")
 async def health_check():
-    """Check if Solana connection is working"""
+    # Checks if Solana connection is working
     try:
         response = await nft_minter.client.get_health()
         return {
