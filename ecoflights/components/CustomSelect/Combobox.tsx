@@ -1,4 +1,25 @@
 import React from 'react';
+// Assuming the CSS file is named 'Combobox.css'
+// Adjust the path/name if different
+import './Combobox.css'; 
+
+// ... rest of your code ...
+
+const SampleAirportData = [
+  // ... your airport data
+];
+
+const MyFlightSearchForm = () => (
+  // The .input-group is critical for popover positioning!
+  <div className="input-group"> 
+    <Combobox listData={SampleAirportData}>
+      <ComboboxInput />
+      <ComboboxPopOver>
+        <ComboboxList />
+      </ComboboxPopOver>
+    </Combobox>
+  </div>
+);
 
 // Lightweight Combobox implementation extracted for import from './Combobox'
 export type Airport = { name: string; iata: string };
