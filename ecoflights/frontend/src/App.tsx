@@ -7,9 +7,10 @@ import AboutEmissions from './components/AboutEmissions';
 import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
 import AccountPage from './components/auth/AccountPage';
+import AboutUs from "./components/AboutUs";
 import './App.css';
 
-export type View = 'home' | 'login' | 'signup' | 'account';
+export type View = 'home' | 'login' | 'signup' | 'about' | 'account';
 
 function App() {
   const { 
@@ -43,18 +44,16 @@ function App() {
   const renderView = () => {
     switch (currentView) {
       case 'login':
-        // 6. We no longer pass 'onLogin'
         return <div className="page-container"><LoginPage onNavigate={navigate} /></div>;
       case 'signup':
-        // 6. We no longer pass 'onLogin'
         return <div className="page-container"><SignupPage onNavigate={navigate} /></div>;
       case 'account':
-        // 7. Use 'isAuthenticated' to protect the page
         if (!isAuthenticated) {
           return <div className="page-container"><LoginPage onNavigate={navigate} /></div>;
         }
-        // 8. Pass the 'user.name' and new 'handleLogout'
         return <div className="page-container"><AccountPage userName={user?.name || ''} onLogout={handleLogout} /></div>;
+      case 'about':
+        return <div className="page-container"><AboutUs /></div>;
       case 'home':
       default:
         return (
