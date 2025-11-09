@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Flight } from '../types';
+import type { Flight } from '../frontend/src/types';
 import { PlaneIcon, ClockIcon, CloudIcon } from './icons/Icons';
 import './FlightCard.css';
 
