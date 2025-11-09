@@ -43,28 +43,12 @@
 
 // ecoflights/vite.config.ts - CORRECTED FOR VERCEL DEPLOYMENT
 
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path/win32';
 
+// https://vitejs.dev/config/
 export default defineConfig({
-    // Vercel only needs the plugins and the base URL settings
-    plugins: [react()],
-    
-    // **CRITICAL FIX: Set the base path.**
-    // When Vercel serves the app, it serves it from the root '/'. 
-    // This setting ensures all asset paths (like /index.html) are correct.
-    base: '/',
-
-    // We keep the alias to resolve the '@' symbol correctly, 
-    // but simplify the path resolution to match standard Vite behavior.
-    resolve: {
-        alias: {
-            // This allows you to use imports like '@/'
-            '@': path.resolve(__dirname, './src'), 
-        }
-    },
-    
-    // Vercel does not need any of the local 'server' or 'proxy' configurations.
-    // We remove them because they cause build errors when Vercel tries to interpret them.
+  // This is the essential part. Vercel doesn't need all the local server/proxy code.
+  plugins: [react()],
 });
