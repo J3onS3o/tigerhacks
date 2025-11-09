@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Flight } from '../types';
 import FlightCard from './FlightCard';
 import EcoWalletTab from './EcoWalletTab';
+import { useEcoWallet } from './EcoWalletContext';
 import './FlightSearch.css';
 
 interface SerpAPIParams {
@@ -43,6 +44,9 @@ const FlightSearch: React.FC = () => {
 
   const [impactLoading, setImpactLoading] = useState(false);
   const [impactMessage, setImpactMessage] = useState<string | null>(null);
+
+  // Get wallet stats for impact tab
+  const { co2Saved, ecoImpact, bookedFlights } = useEcoWallet();
   
   const handleSwapLocations = () => {
     const temp = from;
@@ -51,101 +55,101 @@ const FlightSearch: React.FC = () => {
   };
   
   const handleSearch = async () => {
-  if (!from || !to || !departDate) {
-    setError('Please fill in all required fields');
-    return;
-  }
-
-  if (tripType === '1' && !returnDate) {
-    setError('Please select a return date for round trip');
-    return;
-  }
-
-  setLoading(true);
-  setError(null);
-  setBestFlights([]);
-  setOtherFlights([]);
-
-  const params: SerpAPIParams = {
-    departure_id: from.toUpperCase(),
-    arrival_id: to.toUpperCase(),
-    outbound_date: departDate,
-    type: tripType,
-    travel_class: travelClass,
-    adults: travelers,
-    children: 0,
-    infants_in_seat: 0,
-    infants_on_lap: 0,
-    currency: 'USD',
-    hl: 'en',
-    gl: 'us',
-  };
-
-  if (tripType === '1' && returnDate) {
-    params.return_date = returnDate;
-  }
-
-  if (stops) params.stops = stops;
-  if (lowEmissionsOnly) params.emissions = '1';
-
-  try {
-    const response = await fetch('/api/flights/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(params),
-    });
-
-    if (!response.ok) {
-      let errBody: any = null;
-      try {
-        errBody = await response.json();
-      } catch {
-        try {
-          errBody = await response.text();
-        } catch {
-          errBody = 'Unknown error';
-        }
-      }
-      throw new Error(typeof errBody === 'string' ? errBody : JSON.stringify(errBody));
+    if (!from || !to || !departDate) {
+      setError('Please fill in all required fields');
+      return;
     }
 
-    const data = await response.json();
-    
-    // Sort flights by emissions and price
-    const sortFlights = (flights: Flight[]): Flight[] => {
-      return [...flights].sort((a, b) => {
-        // First, prioritize eco-friendly flights (lower emissions)
-        const aEmissions = a.emissions?.comparisonPercent ?? 0;
-        const bEmissions = b.emissions?.comparisonPercent ?? 0;
-        
-        if (aEmissions !== bEmissions) {
-          return aEmissions - bEmissions; // Lower emissions first
-        }
-        
-        // If emissions are the same, sort by price
-        return a.price - b.price;
-      });
+    if (tripType === '1' && !returnDate) {
+      setError('Please select a return date for round trip');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setBestFlights([]);
+    setOtherFlights([]);
+
+    const params: SerpAPIParams = {
+      departure_id: from.toUpperCase(),
+      arrival_id: to.toUpperCase(),
+      outbound_date: departDate,
+      type: tripType,
+      travel_class: travelClass,
+      adults: travelers,
+      children: 0,
+      infants_in_seat: 0,
+      infants_on_lap: 0,
+      currency: 'USD',
+      hl: 'en',
+      gl: 'us',
     };
 
-    // Backend already returns Flight[] format, so use directly (no conversion needed)
-    const best = sortFlights(data.best_flights || []);
-    const other = sortFlights(data.other_flights || []);
-
-    setBestFlights(best);
-    setOtherFlights(other);
-
-    if (best.length === 0 && other.length === 0) {
-      setError('No flights found. Try adjusting your search criteria.');
+    if (tripType === '1' && returnDate) {
+      params.return_date = returnDate;
     }
-  } catch (err) {
-    console.error('Search error:', err);
-    setError('Failed to search flights. Please check your backend is running and try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+
+    if (stops) params.stops = stops;
+    if (lowEmissionsOnly) params.emissions = '1';
+
+    try {
+      const response = await fetch('/api/flights/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+
+      if (!response.ok) {
+        let errBody: any = null;
+        try {
+          errBody = await response.json();
+        } catch {
+          try {
+            errBody = await response.text();
+          } catch {
+            errBody = 'Unknown error';
+          }
+        }
+        throw new Error(typeof errBody === 'string' ? errBody : JSON.stringify(errBody));
+      }
+
+      const data = await response.json();
+      
+      // Sort flights by emissions and price
+      const sortFlights = (flights: Flight[]): Flight[] => {
+        return [...flights].sort((a, b) => {
+          // First, prioritize eco-friendly flights (lower emissions)
+          const aEmissions = a.emissions?.comparisonPercent ?? 0;
+          const bEmissions = b.emissions?.comparisonPercent ?? 0;
+          
+          if (aEmissions !== bEmissions) {
+            return aEmissions - bEmissions; // Lower emissions first
+          }
+          
+          // If emissions are the same, sort by price
+          return a.price - b.price;
+        });
+      };
+
+      // Backend already returns Flight[] format, so use directly (no conversion needed)
+      const best = sortFlights(data.best_flights || []);
+      const other = sortFlights(data.other_flights || []);
+
+      setBestFlights(best);
+      setOtherFlights(other);
+
+      if (best.length === 0 && other.length === 0) {
+        setError('No flights found. Try adjusting your search criteria.');
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      setError('Failed to search flights. Please check your backend is running and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -171,17 +175,15 @@ const FlightSearch: React.FC = () => {
               setImpactMessage(null);
 
               try {
-                // Example stats; replace with actual wallet stats
                 const stats = {
-                  totalCO2Saved: 123.4,
-                  reductionPercent: 12.5,
-                  flightsOffset: 3
+                  totalCO2Saved: co2Saved,
+                  reductionPercent: ecoImpact,
+                  flightsOffset: bookedFlights.length
                 };
 
                 const prompt = `
                   A user has saved ${stats.totalCO2Saved.toFixed(1)} kg of CO₂e,
-                  a ${stats.reductionPercent.toFixed(1)}% reduction across flights,
-                  roughly equal to ${stats.flightsOffset} flights offset.
+                  a ${stats.reductionPercent.toFixed(1)}% reduction across ${stats.flightsOffset} flights.
                   Write an encouraging, informative 2-3 sentence summary comparing their impact to everyday examples 
                   (trees planted, miles driven avoided, etc.) in a friendly tone.
                 `;
@@ -207,15 +209,41 @@ const FlightSearch: React.FC = () => {
         </div>
 
         {activeTab === "wallet" && (
-          <EcoWalletTab />
-        )}
+          <EcoWalletTab />
+        )}
 
         {activeTab === "impact" && (
           <div className="tab-content">
-            {impactLoading && <p>Loading your impact...</p>}
+            <h2 className="impact-title">Your Environmental Journey 🌍</h2>
+            
+            <div className="impact-stats">
+              <div className="impact-stat-card">
+                <div className="impact-stat-value">{co2Saved.toFixed(1)}</div>
+                <div className="impact-stat-label">kg CO₂e Saved</div>
+              </div>
+              <div className="impact-stat-card">
+                <div className="impact-stat-value">{ecoImpact.toFixed(1)}%</div>
+                <div className="impact-stat-label">Emissions Reduced</div>
+              </div>
+              <div className="impact-stat-card">
+                <div className="impact-stat-value">{bookedFlights.length}</div>
+                <div className="impact-stat-label">Eco-Flights Booked</div>
+              </div>
+            </div>
+
+            {impactLoading && <p className="loading-text">Loading your impact analysis...</p>}
+            
             {!impactLoading && impactMessage && (
               <div className="impact-message">
+                <h3>Your Impact Summary</h3>
                 <p>{impactMessage}</p>
+              </div>
+            )}
+
+            {!impactLoading && co2Saved === 0 && (
+              <div className="no-impact-message">
+                <h3>Start Your Eco-Journey! 🌱</h3>
+                <p>Book your first eco-friendly flight to start making a positive environmental impact!</p>
               </div>
             )}
           </div>
@@ -401,7 +429,6 @@ const FlightSearch: React.FC = () => {
             )}
 
             <div className="bottom-row">
-
               <button
                 className="submit-button"
                 onClick={handleSearch}

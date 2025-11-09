@@ -234,3 +234,395 @@
   outline-offset: 2px;
   box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
 }
+
+
+
+.token-preview {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 2px solid #f59e0b;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.token-icon {
+  font-size: 1.25rem;
+}
+
+.token-text {
+  font-weight: 600;
+  color: #92400e;
+  font-size: 0.95rem;
+}
+
+/* Booked Status */
+.booked-status {
+  padding: 1rem;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-radius: 0.5rem;
+}
+
+.pnr-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.pnr-label {
+  font-size: 0.875rem;
+  color: #065f46;
+  font-weight: 600;
+}
+
+.pnr-code {
+  font-family: monospace;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #047857;
+  letter-spacing: 0.1em;
+  background: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+}
+
+.copy-button {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: transform 0.2s ease;
+}
+
+.copy-button:hover {
+  transform: scale(1.2);
+}
+
+.copy-button:active {
+  transform: scale(0.9);
+}
+
+.claim-instruction {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 1rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+  background-color: #f3f4f6;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.booking-summary {
+  background: #f9fafb;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.booking-summary h4 {
+  font-size: 1.125rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.route-summary {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.price-summary {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #10b981;
+  margin: 0;
+}
+
+.eco-benefits {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid #10b981;
+}
+
+.eco-benefits h4 {
+  font-size: 1rem;
+  color: #065f46;
+  margin-bottom: 1rem;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #047857;
+}
+
+.benefit-item.highlight {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.benefit-icon {
+  font-size: 1.5rem;
+}
+
+.booking-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.option-button {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+  text-align: center;
+  display: block;
+}
+
+.option-button.primary {
+  background: #10b981;
+  color: white;
+}
+
+.option-button.primary:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.option-button.secondary {
+  background: white;
+  color: #6b7280;
+  border: 2px solid #d1d5db;
+}
+
+.option-button.secondary:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.booking-note {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Impact Tab Styles */
+.impact-title {
+  font-size: 2rem;
+  color: #10b981;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.impact-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.impact-stat-card {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  border: 2px solid #10b981;
+}
+
+.impact-stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #047857;
+  margin-bottom: 0.5rem;
+}
+
+.impact-stat-label {
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+.loading-text {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.impact-message {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 2px solid #10b981;
+  margin-bottom: 2rem;
+}
+
+.impact-message h3 {
+  color: #065f46;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.impact-message p {
+  color: #047857;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.no-impact-message {
+  background: #f9fafb;
+  padding: 3rem 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  border: 2px dashed #d1d5db;
+}
+
+.no-impact-message h3 {
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.no-impact-message p {
+  color: #6b7280;
+  font-size: 1.05rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 1rem;
+  }
+
+  .booking-options {
+    gap: 0.5rem;
+  }
+
+  .impact-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .token-preview {
+    flex-direction: column;
+    text-align: center;
+  }
+}
