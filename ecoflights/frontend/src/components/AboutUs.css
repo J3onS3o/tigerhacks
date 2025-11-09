@@ -1,0 +1,87 @@
+.about-container {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+  border-radius: 1rem;
+  color: white;
+  margin-bottom: 3rem;
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  font-weight: 800;
+}
+
+.about-tagline {
+  font-size: 1.25rem;
+  opacity: 0.95;
+}
+
+.about-content {
+  display: grid;
+  gap: 2rem;
+}
+
+.about-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.section-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.about-section h2 {
+  font-size: 1.75rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.about-section p {
+  color: #4b5563;
+  line-height: 1.7;
+  font-size: 1.1rem;
+}
+
+.values-list {
+  list-style: none;
+  padding: 0;
+}
+
+.values-list li {
+  color: #4b5563;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.values-list li::before {
+  content: "✓";
+  color: #10b981;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.values-list strong {
+  color: #1f2937;
+}
+
+@media (min-width: 768px) {
+  .about-container {
+    padding: 3rem 2rem;
+  }
+}
