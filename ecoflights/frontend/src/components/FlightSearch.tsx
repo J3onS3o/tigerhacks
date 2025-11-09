@@ -22,7 +22,7 @@ interface SerpAPIParams {
 }
 
 const FlightSearch: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'flights' | 'hotels' | 'cars'>('flights');
+  const [activeTab, setActiveTab] = useState<'You Flights' | 'Your Wallet' | 'Your Impact'>('flights');
   const [tripType, setTripType] = useState<'1' | '2'>('1');
   
   const [from, setFrom] = useState('');
@@ -157,13 +157,13 @@ const FlightSearch: React.FC = () => {
             className={`tab-button ${activeTab === 'hotels' ? 'active' : ''}`}
             onClick={() => setActiveTab('hotels')}
           >
-            🏨 Hotels
+            🪙 Wallet
           </button>
           <button
             className={`tab-button ${activeTab === 'cars' ? 'active' : ''}`}
             onClick={() => setActiveTab('cars')}
           >
-            🚗 Cars
+            🌱 Impact
           </button>
         </div>
 
@@ -402,13 +402,6 @@ const FlightSearch: React.FC = () => {
 
           {!loading && !error && (bestFlights.length > 0 || otherFlights.length > 0) && (
             <>
-              <div className="results-header">
-                <h2 className="results-title">
-                  <span className="eco-friendly-icon">🌿</span> 
-                  Eco-Friendly Flight Options
-                </h2>
-                <p className="eco-info">All flights shown have reduced carbon emissions compared to average routes</p>
-              </div>
               <div className="results-grid eco-friendly-section">
                 {bestFlights.map((flight, index) => (
                   <FlightCard key={`best-${flight.id}-${index}`} flight={flight} />

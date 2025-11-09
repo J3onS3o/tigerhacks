@@ -4,12 +4,16 @@ import './AboutUs.css';
 const AboutUs: React.FC = () => {
   return (
     <div className="about-container">
-      <div className="about-hero">
-        <h1>About EcoFlights</h1>
-        <p className="about-tagline">
-          Making sustainable travel accessible to everyone
-        </p>
-      </div>
+      <div className="hero">
+              <div className="hero-background" style={{backgroundImage: "url('https://picsum.photos/1920/1080?grayscale&blur=2')"}}></div>
+              <div className="hero-overlay"></div>
+              <div className="container hero-content">
+                  <h1 className="hero-title">Fly Green With US</h1>
+                  <p className="hero-subtitle">
+                    Discover flights with lower-than-average emissions and reduce your carbon footprint. Your journey to a sustainable future starts here.
+                  </p>
+              </div>
+            </div>
 
       <div className="about-content">
         <section className="about-section">
@@ -24,7 +28,7 @@ const AboutUs: React.FC = () => {
 
         <section className="about-section">
           <div className="section-icon">✈️</div>
-          <h2>What We Do</h2>
+          <h2>Who We Are</h2>
           <p>
             We provide transparent carbon emission data for flights, making it easy 
             to compare and choose lower-emission travel options. Our platform exclusively 
@@ -34,7 +38,7 @@ const AboutUs: React.FC = () => {
 
         <section className="about-section">
           <div className="section-icon">🌱</div>
-          <h2>Our Impact</h2>
+          <h2>Our Journey</h2>
           <p>
             Through blockchain technology and carbon credits, we're creating a transparent 
             ecosystem where every flight choice contributes to a more sustainable future. 
@@ -44,12 +48,12 @@ const AboutUs: React.FC = () => {
 
         <section className="about-section">
           <div className="section-icon">💚</div>
-          <h2>Our Values</h2>
+          <h2>Our Links</h2>
           <ul className="values-list">
-            <li><strong>Transparency:</strong> Clear, honest carbon emission data</li>
-            <li><strong>Sustainability:</strong> Prioritizing eco-friendly travel options</li>
-            <li><strong>Innovation:</strong> Leveraging blockchain for environmental impact</li>
-            <li><strong>Accessibility:</strong> Making green travel easy for everyone</li>
+            <li><strong>Devpost:</strong> Clear, honest carbon emission data</li>
+            <li><strong>Github:</strong> Prioritizing eco-friendly travel options</li>
+            <li><strong>Presentation:</strong> Leveraging blockchain for environmental impact</li>
+            <li><strong>Contact Us!:</strong> Making green travel easy for everyone</li>
           </ul>
         </section>
       </div>
