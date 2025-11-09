@@ -8,7 +8,7 @@ import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from solana.rpc.async_api import AsyncClient
-from solana.keypair import Keypair
+from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 import os
 
@@ -16,10 +16,37 @@ app = FastAPI()
 
 # Configuration
 RPC_URL = "https://api.devnet.solana.com"
-AUTHORITY_KEYPAIR_PATH = "authority-keypair.json"
+AUTHORITY_KEYPAIR_PATH = "authority-keypair.json" #/Users/kennyhong/.config/solana/id.json
 
-# In-memory database for hackathon
-user_database = {}
+# In-memory database for hackathon with demo data
+user_database = {
+    # Demo user 1: Has reduced 350kg CO2e, claimed 100kg NFT
+    "47e6dXJGYkLc5MYQ1yZem597PCngRmKfFUVcjgCzA6c3": {
+        "total_CO2e": 550,
+        "flights": [
+            {"airline": "United Airlines", "route": "SFO-LAX", "CO2e": 350}
+        ],
+        "claimed_milestones": [100,250,500],
+        "nfts": [
+            {
+                "nft_mint": "Demo100kgNFT123456789",
+                "metadata": {
+                    "name": "SAF CO2e Reduction - 100kg Club",
+                    "symbol": "SAFM",
+                    "description": "Reduced 350kg CO2 emissions using SAF",
+                    "attributes": [
+                        {"trait_type": "Milestone", "value": "100"},
+                        {"trait_type": "Total CO2e Reduced (kg)", "value": "350"}
+                    ]
+                },
+                "milestone": 100,
+                "status": "minted_on_chain",
+                "network": "devnet",
+                "explorer_url": "https://explorer.solana.com/address/Demo100kgNFT123456789?cluster=devnet"
+            }
+        ]
+    }
+}
 
 class SolanaNFTMinter:
     def __init__(self):
@@ -39,21 +66,21 @@ class SolanaNFTMinter:
         self, 
         user_wallet: str,
         milestone: int,
-        CO2e: int
+        total_CO2e: int
     ) -> dict:
         """
         Mint NFT on Solana using Metaplex
         """
-        print(f"Minting {milestone} mile NFT for {user_wallet}...")
+        print(f"Minting {milestone}kg of CO2e reduction NFT for {user_wallet}...")
         
         # Create metadata
         metadata = {
-            "name": f"SAF Miles - {milestone} Mile Club",
+            "name": f"SAF CO2e Reduction - {milestone}kg Club",
             "symbol": "SAFM",
-            "description": f"This NFT certifies that the holder has reduced {CO2e} kg. Redeemable by airlines for tax credits.",
+            "description": f"This NFT certifies that the holder has reduced {total_CO2e}kg of CO2 emissions by flying with Sustainable Aviation Fuel (SAF). Redeemable by airlines for tax credits.",
             "attributes": [
                 {"trait_type": "Milestone", "value": str(milestone)},
-                {"trait_type": "Total CO2e Reduced", "value": str(CO2e)},
+                {"trait_type": "Total CO2e Reduced (kg)", "value": str(total_CO2e)},
                 {"trait_type": "User Address", "value": user_wallet},
                 {"trait_type": "Redeemable", "value": "Yes"}
             ]
@@ -142,7 +169,7 @@ class Flight(BaseModel):
     user_wallet: str
     airline: str
     route: str
-    miles: int
+    CO2e: int  # CO2 emissions reduced
     uses_saf: bool
 
 class RedeemRequest(BaseModel):
@@ -155,7 +182,7 @@ class RedeemRequest(BaseModel):
 async def log_flight(flight: Flight):
     """Log a flight and check for milestone NFTs"""
     if not flight.uses_saf:
-        return {"message": "Flight does not use SAF", "miles_added": 0}
+        return {"message": "Flight does not use SAF", "CO2e_reduced": 0}
     
     # Validate Solana address
     try:
@@ -166,19 +193,19 @@ async def log_flight(flight: Flight):
     # Initialize user if new
     if flight.user_wallet not in user_database:
         user_database[flight.user_wallet] = {
-            "CO2e": 0,
+            "total_CO2e": 0,
             "flights": [],
             "claimed_milestones": [],
             "nfts": []
         }
     
-    # Add miles
+    # Add CO2e reduced
     user = user_database[flight.user_wallet]
-    user["CO2e"] += flight.miles
+    user["total_CO2e"] += flight.CO2e
     user["flights"].append({
         "airline": flight.airline,
         "route": flight.route,
-        "miles": flight.miles
+        "CO2e": flight.CO2e
     })
     
     # Check for milestone NFTs
@@ -186,25 +213,25 @@ async def log_flight(flight: Flight):
     new_nfts = []
     
     for milestone in milestones:
-        if user["CO2e"] >= milestone and milestone not in user["claimed_milestones"]:
+        if user["total_CO2e"] >= milestone and milestone not in user["claimed_milestones"]:
             # Mint NFT on Solana
             nft = await nft_minter.mint_nft_metaplex(
                 flight.user_wallet,
                 milestone,
-                user["CO2e"]
+                user["total_CO2e"]
             )
             
             user["claimed_milestones"].append(milestone)
             user["nfts"].append(nft)
             new_nfts.append(nft)
-            print(f"✓ Minted {milestone} mile NFT: {nft['nft_mint']}")
+            print(f"✓ Minted {milestone} CO2e NFT: {nft['nft_mint']}")
     
     return {
         "message": "Flight logged successfully",
-        "miles_added": flight.miles,
-        "CO2e": user["CO2e"],
+        "CO2e_reduced": flight.CO2e,
+        "total_CO2e": user["total_CO2e"],
         "new_nfts": new_nfts,
-        "next_milestone": next((m for m in milestones if m > user["CO2e"]), None)
+        "next_milestone": next((m for m in milestones if m > user["total_CO2e"]), None)
     }
 
 @app.get("/api/user/{wallet}")
@@ -267,3 +294,13 @@ async def shutdown():
     await nft_minter.client.close()
 
 # Run with: uvicorn saf_nft_api:app --reload
+
+# curl -X POST "http://127.0.0.1:8000/api/log-flight" \
+#   -H "Content-Type: application/json" \
+#   -d '{
+#     "user_wallet": "47e6dXJGYkLc5MYQ1yZem597PCngRmKfFUVcjgCzA6c3",
+#     "airline": "United Airlines",
+#     "route": "SFO-LAX",
+#     "CO2e": 150,
+#     "uses_saf": true
+#   }'
