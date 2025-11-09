@@ -1,5 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 import { fetchFlightsFromSerpApi } from '../services/serpApiService';
+import { mapSerpResponse } from '../services/flightMapper';
+import type { Flight } from '../types/flights';
 
 const router: Router = express.Router();
 
@@ -50,46 +52,11 @@ interface Flight {
   bookingLink: string;
 }
 
-// Map a single SerpApi flight item to our Flight shape
-function mapSerpFlightToFlight(serpFlight: any): Flight {
-  console.log('Mapping SerpAPI flight:', JSON.stringify(serpFlight, null, 2));
-  
-  // Get the first flight segment
-  const outbound = serpFlight.flights[0];
-  
-  // Extract departure/arrival times from the SerpAPI format (which includes date and time together)
-  const departureDateTime = outbound.departure_airport?.time?.split(' ') || ['', ''];
-  const arrivalDateTime = outbound.arrival_airport?.time?.split(' ') || ['', ''];
-
-  return {
-    id: serpFlight.departure_token || Math.random().toString(36).slice(2, 9),
-    airline: outbound.airline || 'Unknown',
-    flightNumber: outbound.flight_number || '',
-    departure: {
-      airport: outbound.departure_airport?.id || '',
-      time: departureDateTime[1] || '',  // Just the time part
-      date: departureDateTime[0] || ''   // Just the date part
-    },
-    arrival: {
-      airport: outbound.arrival_airport?.id || '',
-      time: arrivalDateTime[1] || '',    // Just the time part
-      date: arrivalDateTime[0] || ''     // Just the date part
-    },
-    duration: formatDuration(outbound.duration || serpFlight.total_duration || 0),
-    price: serpFlight.price || 0,
-    emissions: serpFlight.carbon_emissions ? {
-      co2Grams: serpFlight.carbon_emissions.this_flight || 0,
-      comparisonPercent: serpFlight.carbon_emissions.difference_percent || 0
-    } : undefined,
-    bookingLink: '#'  // SerpAPI doesn't provide direct booking links
-  };
-}
-
-// Normalize SerpApi response into { best_flights: Flight[], other_flights: Flight[] }
-function mapSerpResponse(data: any) {
-  const best = Array.isArray(data.best_flights) ? data.best_flights.map(mapSerpFlightToFlight) : [];
-  const other = Array.isArray(data.other_flights) ? data.other_flights.map(mapSerpFlightToFlight) : [];
-  return { best_flights: best, other_flights: other };
+// Type definition for flight response
+interface FlightResponse {
+  best_flights: Flight[];
+  other_flights: Flight[];
+  success: boolean;
 }
 
 // POST /api/flights/search
@@ -111,23 +78,31 @@ router.post('/search', async (req: Request<{}, {}, FlightSearchRequest>, res: Re
 
       const mockFlights = [
         {
-          booking_token: 'mock1',
-          flights: [
-            {
-              airline: 'EcoFly',
-              flight_number: 'EF123',
-              departure_airport: { id: req.body.departure_id || 'SFO', time: '08:30', name: req.body.outbound_date || '' },
-              arrival_airport: { id: req.body.arrival_id || 'JFK', time: '16:45', name: req.body.outbound_date || '' }
-            }
-          ],
-          total_duration: 315,
+          flightNumber: 'EF123',
+          airline: 'EcoFly',
+          departure: {
+            airport: req.body.departure_id || 'SFO',
+            time: '08:30'
+          },
+          arrival: {
+            airport: req.body.arrival_id || 'JFK',
+            time: '16:45'
+          },
+          duration: '5h 15m',
           price: 350,
-          carbon_emissions: { this_flight: 150000, difference_percent: -18 },
-          booking_link: '#'
+          emissions: {
+            co2Grams: 150000,
+            comparisonPercent: -18
+          },
+          bookingLink: '#'
         }
       ];
 
-      return res.json({ best_flights: mockFlights, other_flights: [] });
+      return res.json({ 
+        success: true,
+        best_flights: mockFlights, 
+        other_flights: [] 
+      });
     }
 
     const searchParams = {
@@ -143,14 +118,17 @@ router.post('/search', async (req: Request<{}, {}, FlightSearchRequest>, res: Re
       type: searchParams.type === '1' ? 'Round trip' : 'One way',
     });
 
-  const rawData = await fetchFlightsFromSerpApi(req.body);
+    const rawData = await fetchFlightsFromSerpApi(req.body);
+    console.log('Raw data from SerpAPI:', JSON.stringify(rawData, null, 2));
 
-  const mapped = mapSerpResponse(rawData);
-  const bestFlights = mapped.best_flights.length;
-  const otherFlights = mapped.other_flights.length;
-  console.log(`Found ${bestFlights} best flights and ${otherFlights} other flights`);
+    const mapped = mapSerpResponse(rawData);
+    console.log('Mapped flight data:', JSON.stringify(mapped, null, 2));
 
-  res.json(mapped);
+    // Send only one response
+    res.json({
+      success: true,
+      ...mapped
+    });
   } catch (error: any) {
     // Log full error for debugging
     console.error('SerpAPI Error Full:', error);

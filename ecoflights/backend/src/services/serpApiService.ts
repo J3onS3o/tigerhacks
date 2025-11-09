@@ -8,6 +8,7 @@ export async function fetchFlightsFromSerpApi(params: Record<string, any>) {
   const searchParams = {
     api_key: process.env.SERPAPI_KEY,
     engine: 'google_flights',
+    emissions: '1', // Always filter for eco-friendly flights
     ...params,
   };
 

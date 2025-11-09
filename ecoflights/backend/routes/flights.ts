@@ -1,14 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-import { fetchFlightsFromSerpApi } from '../src/services/serpApiService';
+import { fetchFlightsFromSerpApi } from '../../services/serpApiService';
+import { formatDuration, mapSerpResponse } from '../../services/flightMapper';
 
 const router: Router = express.Router();
-
-// Helper function to format duration from minutes to "Xh Ym" format
-function formatDuration(minutes: number): string {
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return `${hours}h ${remainingMinutes}m`;
-}
 
 // Define TypeScript types for the flight search request body
 interface FlightSearchRequest {
@@ -16,7 +10,7 @@ interface FlightSearchRequest {
   arrival_id: string;
   outbound_date: string;
   inbound_date?: string;
-  type?: '0' | '1'; // '0' = one way, '1' = round trip
+  type?: '1' | '2'; // '1' = one way, '2' = round trip
   [key: string]: any; // for any additional parameters
 }
 
@@ -42,16 +36,18 @@ router.post('/search', async (req: Request<{}, {}, FlightSearchRequest>, res: Re
       type: req.body.type === '1' ? 'Round trip' : 'One way',
     });
 
-    const data: SerpApiFlightResponse = await fetchFlightsFromSerpApi(req.body);
+    const rawData = await fetchFlightsFromSerpApi(req.body);
+    const mappedData = mapSerpResponse(rawData);
 
-    const bestFlights = data.best_flights?.length || 0;
-    const otherFlights = data.other_flights?.length || 0;
-    console.log(`Found ${bestFlights} best flights and ${otherFlights} other flights`);
+    console.log('Mapped flight data:', {
+      bestFlights: mappedData.best_flights.length,
+      otherFlights: mappedData.other_flights.length,
+    });
 
-    // Return the normalized response
+    // Return the normalized and mapped response
     res.json({
       success: true,
-      ...data, // This spreads best_flights and other_flights arrays
+      ...mappedData,
     });
 
   } catch (error: any) {

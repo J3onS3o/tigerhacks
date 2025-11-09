@@ -34,9 +34,8 @@ const FlightSearch: React.FC = () => {
   
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [stops, setStops] = useState<'0' | '1' | '2' | ''>('');
-  const [lowEmissionsOnly, setLowEmissionsOnly] = useState(true);
-  
-  const [flights, setFlights] = useState<Flight[]>([]);
+  const [bestFlights, setBestFlights] = useState<Flight[]>([]);
+  const [otherFlights, setOtherFlights] = useState<Flight[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -136,12 +135,30 @@ const FlightSearch: React.FC = () => {
 
       const data = await response.json();
       
-      const flightResults = data.best_flights?.map(convertSerpAPIToFlight) || [];
-      const otherFlights = data.other_flights?.map(convertSerpAPIToFlight) || [];
+      // Sort flights by emissions and price
+      const sortFlights = (flights: Flight[]): Flight[] => {
+        return [...flights].sort((a, b) => {
+          // First, prioritize eco-friendly flights (lower emissions)
+          const aEmissions = a.emissions?.comparisonPercent ?? 0;
+          const bEmissions = b.emissions?.comparisonPercent ?? 0;
+          
+          if (aEmissions !== bEmissions) {
+            return aEmissions - bEmissions; // Lower emissions first
+          }
+          
+          // If emissions are the same, sort by price
+          return a.price - b.price;
+        });
+      };
+
+      // Update state with sorted flights
+      const best = sortFlights(data.best_flights || []);
+      const other = sortFlights(data.other_flights || []);
       
-      setFlights([...flightResults, ...otherFlights]);
+      setBestFlights(best);
+      setOtherFlights(other);
       
-      if (flightResults.length === 0 && otherFlights.length === 0) {
+      if (best.length === 0 && other.length === 0) {
         setError('No flights found. Try adjusting your search criteria.');
       }
     } catch (err) {
@@ -349,27 +366,13 @@ const FlightSearch: React.FC = () => {
                   </select>
                 </div>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={lowEmissionsOnly}
-                    onChange={(e) => setLowEmissionsOnly(e.target.checked)}
-                    style={{ width: '1.25rem', height: '1.25rem' }}
-                  />
-                  <span style={{ fontSize: '0.875rem' }}>
-                    🌱 Show only low-emission flights
-                  </span>
-                </label>
+                <div className="eco-badge">
+                  🌱 EcoFlights - Finding the most environmentally conscious travel options
+                </div>
               </div>
             )}
 
             <div className="bottom-row">
-              <select className="economy-select" value={travelClass} onChange={(e) => setTravelClass(e.target.value as any)}>
-                <option value="1">Economy</option>
-                <option value="2">Premium Economy</option>
-                <option value="3">Business</option>
-                <option value="4">First Class</option>
-              </select>
 
               <button
                 className="submit-button"
@@ -398,14 +401,22 @@ const FlightSearch: React.FC = () => {
         )}
       </div>
 
-      {(loading || error || flights.length > 0) && (
+      {(loading || error || bestFlights.length > 0 || otherFlights.length > 0) && (
         <div className="results-section">
+          <div className="eco-info-banner">
+            <div className="eco-icon">🌍</div>
+            <div className="eco-message">
+              <h3>Eco-Friendly Flight Search</h3>
+              <p>We exclusively show flights with lower carbon emissions to help you make environmentally conscious travel choices.</p>
+            </div>
+          </div>
+
           {loading && (
             <div className="loading-state">
               <svg className="loading-icon pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
-              <p>Searching for the best flights...</p>
+              <p>Finding your eco-conscious travel options...</p>
             </div>
           )}
 
@@ -415,12 +426,21 @@ const FlightSearch: React.FC = () => {
             </div>
           )}
 
-          {!loading && !error && flights.length > 0 && (
+          {!loading && !error && (bestFlights.length > 0 || otherFlights.length > 0) && (
             <>
-              <h2 className="results-title">Available Flights</h2>
-              <div className="results-grid">
-                {flights.map((flight) => (
-                  <FlightCard key={flight.id} flight={flight} />
+              <div className="results-header">
+                <h2 className="results-title">
+                  <span className="eco-friendly-icon">🌿</span> 
+                  Eco-Friendly Flight Options
+                </h2>
+                <p className="eco-info">All flights shown have reduced carbon emissions compared to average routes</p>
+              </div>
+              <div className="results-grid eco-friendly-section">
+                {bestFlights.map((flight) => (
+                  <FlightCard key={flight.flightNumber} flight={flight} />
+                ))}
+                {otherFlights.map((flight) => (
+                  <FlightCard key={flight.flightNumber} flight={flight} />
                 ))}
               </div>
             </>
