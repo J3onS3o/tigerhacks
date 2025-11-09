@@ -20,7 +20,7 @@ AUTHORITY_KEYPAIR_PATH = "authority-keypair.json" #/Users/kennyhong/.config/sola
 
 # In-memory database for hackathon with demo data
 user_database = {
-    # Demo user 1: Has reduced 350kg CO2e, claimed 100kg NFT
+    # Demo user 1:
     "47e6dXJGYkLc5MYQ1yZem597PCngRmKfFUVcjgCzA6c3": {
         "total_CO2e": 550,
         "flights": [
@@ -86,7 +86,6 @@ class SolanaNFTMinter:
             ]
         }
         
-        # For hackathon: simplified minting using spl-token
         # This creates a basic NFT (1 supply token)
         try:
             # Create a new token mint
