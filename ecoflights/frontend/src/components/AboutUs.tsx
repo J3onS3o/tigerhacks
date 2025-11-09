@@ -5,7 +5,7 @@ const AboutUs: React.FC = () => {
   return (
     <div className="about-container">
       <div className="hero">
-              <div className="hero-background" style={{backgroundImage: "url('https://picsum.photos/1920/1080?grayscale&blur=2')"}}></div>
+              <div className="hero-background" style={{backgroundImage: "url('greenair.jpg')"}}></div>
               <div className="hero-overlay"></div>
               <div className="container hero-content">
                   <h1 className="hero-title">Fly Green With US</h1>
