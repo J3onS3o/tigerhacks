@@ -53,7 +53,7 @@ function App() {
         }
         return <div className="page-container"><AccountPage userName={user?.name || ''} onLogout={handleLogout} /></div>;
       case 'about':
-        return <div className="page-container"><AboutUs /></div>;
+        return <div className="page-container"><AboutUs onNavigate={navigate}/></div>;
       case 'home':
       default:
         return (
@@ -79,7 +79,6 @@ function App() {
     }
   }
 
-  // 9. Add a loading state while Auth0 checks the session
   if (isLoading) {
     return (
       <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -91,9 +90,10 @@ function App() {
   return (
     <div className="app-container">
       <Header 
-        isLoggedIn={isAuthenticated} // 10. Pass 'isAuthenticated' to the header
+        isLoggedIn={isAuthenticated} // Pass 'isAuthenticated' to the header
         onAccountClick={handleAccountClick} 
         onLogoClick={() => navigate('home')}
+        onAboutClick={() => navigate('about')}
       />
       <main className="main-content">
         {renderView()}

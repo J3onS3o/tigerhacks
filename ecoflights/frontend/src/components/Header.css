@@ -74,3 +74,22 @@
     display: inline;
   }
 }
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-link-button {
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 150ms ease-in-out;
+}
+
+.nav-link-button:hover {
+  color: var(--color-primary-dark);
+}
