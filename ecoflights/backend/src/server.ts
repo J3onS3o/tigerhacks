@@ -51,13 +51,11 @@ app.use((req, res, next) => {
 });
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
-// Explicitly bind to localhost instead of 0.0.0.0 for development
-const HOST = process.env.HOST || 'localhost';
 
-app.listen(PORT, HOST, () => {
-  console.log(`🚀 Server running on http://${HOST}:${PORT}`);
-  console.log(`Try accessing via: http://127.0.0.1:${PORT}`);
-  console.log(`Also available on: http://localhost:${PORT}`);
+// Listen on all available network interfaces
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Test the API: curl http://localhost:${PORT}/api/flights/test`);
 }).on('error', (err) => {
   console.error('Failed to start server:', err);
   console.error('Error details:', err.message);

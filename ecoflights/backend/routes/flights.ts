@@ -3,6 +3,13 @@ import { fetchFlightsFromSerpApi } from '../src/services/serpApiService';
 
 const router: Router = express.Router();
 
+// Helper function to format duration from minutes to "Xh Ym" format
+function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return `${hours}h ${remainingMinutes}m`;
+}
+
 // Define TypeScript types for the flight search request body
 interface FlightSearchRequest {
   departure_id: string;

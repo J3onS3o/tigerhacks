@@ -52,29 +52,36 @@ interface Flight {
 
 // Map a single SerpApi flight item to our Flight shape
 function mapSerpFlightToFlight(serpFlight: any): Flight {
-  const outbound = serpFlight.flights?.[0] || {};
+  console.log('Mapping SerpAPI flight:', JSON.stringify(serpFlight, null, 2));
+  
+  // Get the first flight segment
+  const outbound = serpFlight.flights[0];
+  
+  // Extract departure/arrival times from the SerpAPI format (which includes date and time together)
+  const departureDateTime = outbound.departure_airport?.time?.split(' ') || ['', ''];
+  const arrivalDateTime = outbound.arrival_airport?.time?.split(' ') || ['', ''];
 
   return {
-    id: serpFlight.booking_token || Math.random().toString(36).slice(2, 9),
+    id: serpFlight.departure_token || Math.random().toString(36).slice(2, 9),
     airline: outbound.airline || 'Unknown',
     flightNumber: outbound.flight_number || '',
     departure: {
-      airport: outbound.departure_airport?.id || outbound.departure_airport?.code || '',
-      time: outbound.departure_airport?.time || '',
-      date: outbound.departure_airport?.name || ''
+      airport: outbound.departure_airport?.id || '',
+      time: departureDateTime[1] || '',  // Just the time part
+      date: departureDateTime[0] || ''   // Just the date part
     },
     arrival: {
-      airport: outbound.arrival_airport?.id || outbound.arrival_airport?.code || '',
-      time: outbound.arrival_airport?.time || '',
-      date: outbound.arrival_airport?.name || ''
+      airport: outbound.arrival_airport?.id || '',
+      time: arrivalDateTime[1] || '',    // Just the time part
+      date: arrivalDateTime[0] || ''     // Just the date part
     },
-    duration: serpFlight.total_duration ? `${Math.floor(serpFlight.total_duration / 60)}h ${serpFlight.total_duration % 60}m` : (serpFlight.duration || ''),
+    duration: formatDuration(outbound.duration || serpFlight.total_duration || 0),
     price: serpFlight.price || 0,
     emissions: serpFlight.carbon_emissions ? {
-      co2Grams: serpFlight.carbon_emissions.this_flight || serpFlight.carbon_emissions.co2 || undefined,
+      co2Grams: serpFlight.carbon_emissions.this_flight || 0,
       comparisonPercent: serpFlight.carbon_emissions.difference_percent || 0
     } : undefined,
-    bookingLink: serpFlight.booking_link || serpFlight.booking_link_raw || '#'
+    bookingLink: '#'  // SerpAPI doesn't provide direct booking links
   };
 }
 
