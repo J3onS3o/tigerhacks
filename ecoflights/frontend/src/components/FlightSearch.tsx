@@ -34,6 +34,7 @@ const FlightSearch: React.FC = () => {
   
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [stops, setStops] = useState<'0' | '1' | '2' | ''>('');
+  const [lowEmissionsOnly] = useState(true); 
   const [bestFlights, setBestFlights] = useState<Flight[]>([]);
   const [otherFlights, setOtherFlights] = useState<Flight[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,130 +45,103 @@ const FlightSearch: React.FC = () => {
     setFrom(to);
     setTo(temp);
   };
-
-  const convertSerpAPIToFlight = (serpFlight: any): Flight => {
-    const outbound = serpFlight.flights?.[0];
-    
-    return {
-      id: serpFlight.booking_token || Math.random().toString(),
-      airline: outbound?.airline || 'Unknown',
-      flightNumber: outbound?.flight_number || '',
-      departure: {
-        airport: outbound?.departure_airport?.id || '',
-        time: outbound?.departure_airport?.time || '',
-        date: outbound?.departure_airport?.name || ''
-      },
-      arrival: {
-        airport: outbound?.arrival_airport?.id || '',
-        time: outbound?.arrival_airport?.time || '',
-        date: outbound?.arrival_airport?.name || ''
-      },
-      duration: serpFlight.total_duration ? `${Math.floor(serpFlight.total_duration / 60)}h ${serpFlight.total_duration % 60}m` : '',
-      price: serpFlight.price || 0,
-      emissions: serpFlight.carbon_emissions ? {
-        amount: serpFlight.carbon_emissions.this_flight,
-        comparisonPercent: serpFlight.carbon_emissions.difference_percent || 0
-      } : undefined,
-      bookingLink: serpFlight.booking_link || '#'
-    };
-  };
-
+  
   const handleSearch = async () => {
-    if (!from || !to || !departDate) {
-      setError('Please fill in all required fields');
-      return;
+  if (!from || !to || !departDate) {
+    setError('Please fill in all required fields');
+    return;
+  }
+
+  if (tripType === '1' && !returnDate) {
+    setError('Please select a return date for round trip');
+    return;
+  }
+
+  setLoading(true);
+  setError(null);
+  setBestFlights([]);
+  setOtherFlights([]);
+
+  const params: SerpAPIParams = {
+    departure_id: from.toUpperCase(),
+    arrival_id: to.toUpperCase(),
+    outbound_date: departDate,
+    type: tripType,
+    travel_class: travelClass,
+    adults: travelers,
+    children: 0,
+    infants_in_seat: 0,
+    infants_on_lap: 0,
+    currency: 'USD',
+    hl: 'en',
+    gl: 'us',
+  };
+
+  if (tripType === '1' && returnDate) {
+    params.return_date = returnDate;
+  }
+
+  if (stops) params.stops = stops;
+  if (lowEmissionsOnly) params.emissions = '1';
+
+  try {
+    const response = await fetch('/api/flights/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      let errBody: any = null;
+      try {
+        errBody = await response.json();
+      } catch {
+        try {
+          errBody = await response.text();
+        } catch {
+          errBody = 'Unknown error';
+        }
+      }
+      throw new Error(typeof errBody === 'string' ? errBody : JSON.stringify(errBody));
     }
 
-    if (tripType === '1' && !returnDate) {
-      setError('Please select a return date for round trip');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setFlights([]);
-
-    const params: SerpAPIParams = {
-      departure_id: from.toUpperCase(),
-      arrival_id: to.toUpperCase(),
-      outbound_date: departDate,
-      type: tripType,
-      travel_class: travelClass,
-      adults: travelers,
-      children: 0,
-      infants_in_seat: 0,
-      infants_on_lap: 0,
-      currency: 'USD',
-      hl: 'en',
-      gl: 'us',
+    const data = await response.json();
+    
+    // Sort flights by emissions and price
+    const sortFlights = (flights: Flight[]): Flight[] => {
+      return [...flights].sort((a, b) => {
+        // First, prioritize eco-friendly flights (lower emissions)
+        const aEmissions = a.emissions?.comparisonPercent ?? 0;
+        const bEmissions = b.emissions?.comparisonPercent ?? 0;
+        
+        if (aEmissions !== bEmissions) {
+          return aEmissions - bEmissions; // Lower emissions first
+        }
+        
+        // If emissions are the same, sort by price
+        return a.price - b.price;
+      });
     };
 
-    if (tripType === '1' && returnDate) {
-      params.return_date = returnDate;
+    // Backend already returns Flight[] format, so use directly (no conversion needed)
+    const best = sortFlights(data.best_flights || []);
+    const other = sortFlights(data.other_flights || []);
+
+    setBestFlights(best);
+    setOtherFlights(other);
+
+    if (best.length === 0 && other.length === 0) {
+      setError('No flights found. Try adjusting your search criteria.');
     }
-
-    if (stops) params.stops = stops;
-    if (lowEmissionsOnly) params.emissions = '1';
-
-    try {
-      const response = await fetch('/api/flights/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(params),
-      });
-
-      if (!response.ok) {
-        // try to extract error details from response
-        let errBody: any = null;
-        try {
-          errBody = await response.json();
-        } catch {
-          try {
-            errBody = await response.text();
-          } catch {
-            errBody = 'Unknown error';
-          }
-        }
-        throw new Error(typeof errBody === 'string' ? errBody : JSON.stringify(errBody));
-      }
-
-      const data = await response.json();
-      
-      // Sort flights by emissions and price
-      const sortFlights = (flights: Flight[]): Flight[] => {
-        return [...flights].sort((a, b) => {
-          // First, prioritize eco-friendly flights (lower emissions)
-          const aEmissions = a.emissions?.comparisonPercent ?? 0;
-          const bEmissions = b.emissions?.comparisonPercent ?? 0;
-          
-          if (aEmissions !== bEmissions) {
-            return aEmissions - bEmissions; // Lower emissions first
-          }
-          
-          // If emissions are the same, sort by price
-          return a.price - b.price;
-        });
-      };
-
-      // Update state with sorted flights
-      const best = sortFlights(data.best_flights || []);
-      const other = sortFlights(data.other_flights || []);
-      
-      setBestFlights(best);
-      setOtherFlights(other);
-      
-      if (best.length === 0 && other.length === 0) {
-        setError('No flights found. Try adjusting your search criteria.');
-      }
-    } catch (err) {
-      console.error('Search error:', err);
-      setError('Failed to search flights. Please check your backend is running and try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error('Search error:', err);
+    setError('Failed to search flights. Please check your backend is running and try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div>
@@ -436,11 +410,11 @@ const FlightSearch: React.FC = () => {
                 <p className="eco-info">All flights shown have reduced carbon emissions compared to average routes</p>
               </div>
               <div className="results-grid eco-friendly-section">
-                {bestFlights.map((flight) => (
-                  <FlightCard key={flight.flightNumber} flight={flight} />
+                {bestFlights.map((flight, index) => (
+                  <FlightCard key={`best-${flight.id}-${index}`} flight={flight} />
                 ))}
-                {otherFlights.map((flight) => (
-                  <FlightCard key={flight.flightNumber} flight={flight} />
+                {otherFlights.map((flight, index) => (
+                  <FlightCard key={`other-${flight.id}-${index}`} flight={flight} />
                 ))}
               </div>
             </>
