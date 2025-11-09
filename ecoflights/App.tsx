@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import Header from './components/Header';
 import FlightSearch from './components/FlightSearch';
 import Footer from './components/Footer';
@@ -11,42 +12,49 @@ import '../ecoflights/App.css';
 export type View = 'home' | 'login' | 'signup' | 'account';
 
 function App() {
-  const [currentView, setCurrentView] = useState<View>('home');
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [userName, setUserName] = useState<string>('');
+  const { 
+    isLoading, 
+    isAuthenticated, 
+    user, 
+    logout 
+  } = useAuth0();
+
+  const [currentView, setCurrentView] = React.useState<View>('home');
+
 
   const navigate = (view: View) => {
     setCurrentView(view);
   };
 
-  const handleLogin = (name: string) => {
-    setIsLoggedIn(true);
-    setUserName(name);
-    navigate('home');
+ const handleLogout = () => {
+    logout({ 
+      logoutParams: { 
+        returnTo: window.location.origin // Redirects to home page after logout
+      } 
+    });
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserName('');
-    navigate('home');
-  };
-  
-  const handleAccountClick = () => {
-    navigate(isLoggedIn ? 'account' : 'login');
-  };
+ const handleAccountClick = () => {
+    // 5. Use 'isAuthenticated' from Auth0
+    navigate(isAuthenticated ? 'account' : 'login');
 
+
+  };
   const renderView = () => {
     switch (currentView) {
       case 'login':
-        return <div className="page-container"><LoginPage onNavigate={navigate} onLogin={handleLogin} /></div>;
+        // 6. We no longer pass 'onLogin'
+        return <div className="page-container"><LoginPage onNavigate={navigate} /></div>;
       case 'signup':
-        return <div className="page-container"><SignupPage onNavigate={navigate} onLogin={handleLogin} /></div>;
+        // 6. We no longer pass 'onLogin'
+        return <div className="page-container"><SignupPage onNavigate={navigate} /></div>;
       case 'account':
-        // Ensure user is logged in to see account, otherwise redirect to login
-        if (!isLoggedIn) {
-          return <div className="page-container"><LoginPage onNavigate={navigate} onLogin={handleLogin} /></div>;
+        // 7. Use 'isAuthenticated' to protect the page
+        if (!isAuthenticated) {
+          return <div className="page-container"><LoginPage onNavigate={navigate} /></div>;
         }
-        return <div className="page-container"><AccountPage userName={userName} onLogout={handleLogout} /></div>;
+        // 8. Pass the 'user.name' and new 'handleLogout'
+        return <div className="page-container"><AccountPage userName={user?.name || ''} onLogout={handleLogout} /></div>;
       case 'home':
       default:
         return (
@@ -72,10 +80,19 @@ function App() {
     }
   }
 
+  // 9. Add a loading state while Auth0 checks the session
+  if (isLoading) {
+    return (
+      <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <h2>Loading...</h2>
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       <Header 
-        isLoggedIn={isLoggedIn} 
+        isLoggedIn={isAuthenticated} // 10. Pass 'isAuthenticated' to the header
         onAccountClick={handleAccountClick} 
         onLogoClick={() => navigate('home')}
       />
