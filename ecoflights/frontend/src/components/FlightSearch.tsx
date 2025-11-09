@@ -1,9 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { Flight } from '../types';
 import FlightCard from './FlightCard';
 import EcoWalletTab from './EcoWalletTab';
 import { useEcoWallet } from './EcoWalletContext';
+import { 
+  Combobox, 
+  ComboboxInput, 
+  ComboboxPopOver, 
+  ComboboxList, 
+  type Airport 
+} from './CustomSelect/Combobox';
 import './FlightSearch.css';
+import './CustomSelect/Combobox.css';
+
+// Complete airport list
+const airports: Airport[] = [
+  { name: 'Aleknagik / New Airport', iata: 'WKK' },
+  { name: 'John F. Kennedy International Airport', iata: 'JFK' },
+  { name: 'Los Angeles International Airport', iata: 'LAX' },
+  { name: 'San Francisco International Airport', iata: 'SFO' },
+  { name: 'Chicago O\'Hare International Airport', iata: 'ORD' },
+  { name: 'Hartsfield Jackson Atlanta International Airport', iata: 'ATL' },
+  { name: 'Dallas Fort Worth International Airport', iata: 'DFW' },
+  { name: 'Denver International Airport', iata: 'DEN' },
+  { name: 'Charlotte Douglas International Airport', iata: 'CLT' },
+  { name: 'Seattle–Tacoma International Airport', iata: 'SEA' },
+  { name: 'Miami International Airport', iata: 'MIA' },
+  { name: 'Newark Liberty International Airport', iata: 'EWR' },
+  { name: 'Logan International Airport', iata: 'BOS' },
+  { name: 'Phoenix Sky Harbor International Airport', iata: 'PHX' },
+  { name: 'Orlando International Airport', iata: 'MCO' },
+  { name: 'Fort Lauderdale Hollywood International Airport', iata: 'FLL' },
+  { name: 'Houston George Bush Intercontinental Airport', iata: 'IAH' },
+  { name: 'Minneapolis–Saint Paul International Airport', iata: 'MSP' },
+  { name: 'Detroit Metropolitan Wayne County Airport', iata: 'DTW' },
+  { name: 'Philadelphia International Airport', iata: 'PHL' },
+  { name: 'LaGuardia Airport', iata: 'LGA' },
+  { name: 'Baltimore/Washington International Airport', iata: 'BWI' },
+  { name: 'Salt Lake City International Airport', iata: 'SLC' },
+  { name: 'Ronald Reagan Washington National Airport', iata: 'DCA' },
+  { name: 'San Diego International Airport', iata: 'SAN' },
+  { name: 'Tampa International Airport', iata: 'TPA' },
+  { name: 'Portland International Airport', iata: 'PDX' },
+  { name: 'Sacramento International Airport', iata: 'SMF' },
+  { name: 'Austin Bergstrom International Airport', iata: 'AUS' },
+  { name: 'Nashville International Airport', iata: 'BNA' },
+  // Add more airports as needed from your original list
+];
 
 interface SerpAPIParams {
   departure_id: string;
@@ -27,8 +70,9 @@ const FlightSearch: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'flights' | 'wallet' | 'impact'>('flights');
   const [tripType, setTripType] = useState<'1' | '2'>('1');
   
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  // Use IATA codes for from/to
+  const [from, setFrom] = useState('SFO');
+  const [to, setTo] = useState('JFK');
   const [departDate, setDepartDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
   const [travelers, setTravelers] = useState(1);
@@ -120,20 +164,17 @@ const FlightSearch: React.FC = () => {
       // Sort flights by emissions and price
       const sortFlights = (flights: Flight[]): Flight[] => {
         return [...flights].sort((a, b) => {
-          // First, prioritize eco-friendly flights (lower emissions)
           const aEmissions = a.emissions?.comparisonPercent ?? 0;
           const bEmissions = b.emissions?.comparisonPercent ?? 0;
           
           if (aEmissions !== bEmissions) {
-            return aEmissions - bEmissions; // Lower emissions first
+            return aEmissions - bEmissions;
           }
           
-          // If emissions are the same, sort by price
           return a.price - b.price;
         });
       };
 
-      // Backend already returns Flight[] format, so use directly (no conversion needed)
       const best = sortFlights(data.best_flights || []);
       const other = sortFlights(data.other_flights || []);
 
@@ -276,22 +317,21 @@ const FlightSearch: React.FC = () => {
 
             <div className="form-grid">
               <div className="location-inputs">
+                {/* FROM Airport Combobox */}
                 <div className="input-group">
                   <label className="label">From</label>
-                  <div className="input-wrapper">
-                    <svg className="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <input
-                      type="text"
-                      className="input"
-                      placeholder="Airport code (e.g., JFK)"
-                      value={from}
-                      onChange={(e) => setFrom(e.target.value.toUpperCase())}
-                      maxLength={3}
-                    />
-                  </div>
+                  <Combobox 
+                    listData={airports} 
+                    initialValue={from} 
+                    onSelect={setFrom}
+                    label="From Airport"
+                  >
+                    <ComboboxInput>
+                      <ComboboxPopOver>
+                        <ComboboxList />
+                      </ComboboxPopOver>
+                    </ComboboxInput>
+                  </Combobox>
                 </div>
 
                 <button
@@ -305,22 +345,21 @@ const FlightSearch: React.FC = () => {
                   </svg>
                 </button>
 
+                {/* TO Airport Combobox */}
                 <div className="input-group">
                   <label className="label">To</label>
-                  <div className="input-wrapper">
-                    <svg className="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <input
-                      type="text"
-                      className="input"
-                      placeholder="Airport code (e.g., LAX)"
-                      value={to}
-                      onChange={(e) => setTo(e.target.value.toUpperCase())}
-                      maxLength={3}
-                    />
-                  </div>
+                  <Combobox 
+                    listData={airports} 
+                    initialValue={to} 
+                    onSelect={setTo}
+                    label="To Airport"
+                  >
+                    <ComboboxInput>
+                      <ComboboxPopOver>
+                        <ComboboxList />
+                      </ComboboxPopOver>
+                    </ComboboxInput>
+                  </Combobox>
                 </div>
               </div>
 
