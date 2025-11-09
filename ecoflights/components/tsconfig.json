@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    // --- Project Configuration ---
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "jsx": "react-jsx",
+    
+    // --- Module Resolution & Compatibility (The Fixes) ---
+    // Fixes the "Cannot find module" errors by using the standard Node.js resolution strategy.
+    "moduleResolution": "node",
+    
+    // Allows standard ES6 import/export syntax for CommonJS modules (like many npm packages).
+    "esModuleInterop": true,
+
+    // Explicitly includes Node types, now resolvable via 'moduleResolution: node'
+    "types": [
+      "node" 
+    ], 
+
+    // --- Strictness and Code Quality ---
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "useDefineForClassFields": false,
+    "experimentalDecorators": true,
+    
+    // --- Other Configuration ---
+    "allowJs": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  }
+}

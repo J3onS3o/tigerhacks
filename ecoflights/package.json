@@ -9,14 +9,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^1.29.0",
+    "@types/csv-parse": "^1.1.12",
+    "@types/react-select": "^5.0.0",
+    "csv-parse": "^6.1.0",
+    "lodash": "^4.17.21",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "@google/genai": "^1.29.0"
+    "react-select": "^5.10.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "vite": "^6.4.1"
   }
 }
